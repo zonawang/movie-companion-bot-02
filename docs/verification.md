@@ -22,7 +22,9 @@
 ## 尚未完成的驗證與部署
 
 - 新版功能的手機 LINE 收發與截圖；既有 bot-01 的手機驗證不代表本版已切換。
-- 本版未自動改動 LINE webhook、重啟舊服務或搬移既有 SQLite。切換步驟見 [line-setup.md](line-setup.md)。
+- 2026-10-26 使用者提出 LINE 測試後，已啟動 bot-02 於本機 3001，LINE webhook 切換到新版 tunnel，官方測試回傳 `success: true`、`statusCode: 200`，Use webhook 維持啟用。
+- 原有 SQLite 已先備份，再搬到新版私有 `data/`；原 1 張票根的完整欄位雜湊一致。舊服務受執行環境限制未停止，但使用另一份資料庫，LINE 已指向新版。
+- 新版手機收發仍待使用者實測。切換與重啟方式見 [line-setup.md](line-setup.md)。
 - 尚未涵蓋其他威秀分館、其他品牌、即時座位、票價或代訂票。
 - 尚未部署為常駐雲端服務。
 
