@@ -15,13 +15,15 @@ test('分館別名與台／臺一致；只給品牌列出已支援選項，不�
   assert.equal(findCinema(' 臺北 信義 威秀影城 ').id, xinyi.id);
   assert.equal(findCinema('威秀西門').id, 'vieshow-ximen');
   assert.equal(findCinema('威秀'), undefined);
-  assert.equal(cinemas.length, 3);
+  assert.equal(cinemas.length, 23);
   const list = listCinemas({ brand: '威秀影城', city: '臺北市' });
-  assert.deepEqual(list.cinemas.map(cinema => cinema.id), ['vieshow-xinyi', 'vieshow-ximen']);
-  assert.match(formatCinemaList(list), /不是全台或該品牌的完整/);
+  assert.equal(list.cinemas.length, 5);
+  assert.ok(list.cinemas.some(cinema => cinema.id === 'vieshow-qsquare'));
+  assert.ok(list.cinemas.every(cinema => cinema.city === '台北'));
+  assert.match(formatCinemaList(list), /2026-10-26 官方目錄/);
   const cinema = cinemaWith(() => { throw new Error('不應讀網頁'); });
   assert.equal((await cinema.schedule({ cinema: '威秀' })).status, 'choose_cinema');
-  assert.equal((await cinema.schedule({ cinema: '台北京站威秀' })).status, 'unsupported_cinema');
+  assert.equal((await cinema.schedule({ cinema: '不存在的影城' })).status, 'unsupported_cinema');
 });
 
 test('解析重複 id 區塊、全形時間、HTML entity，保留相同片名不同版本', () => {
@@ -116,9 +118,10 @@ test('比較時一館失敗保留另一館成功；來源和官方連結都保�
 
 test('長片單限制訊息長度，三館仍各自保留名稱、來源與官方入口', () => {
   const movies = Array.from({ length: 80 }, (_, i) => ({ title: '很長的片名'.repeat(20) + i, version: '國語版', times: Array(20).fill('21:30') }));
-  const results = cinemas.map(cinema => ({ cinemaId: cinema.id, cinema: cinema.name, status: 'ok', source: '測試資料', sourceUrl: cinema.sourceUrl, bookingUrl: cinema.bookingUrl, date: '2026-10-26', movies }));
+  const selected = [cinemas[0], findCinema('信義威秀'), findCinema('花蓮威秀')];
+  const results = selected.map(cinema => ({ cinemaId: cinema.id, cinema: cinema.name, status: 'ok', source: '測試資料', sourceUrl: cinema.sourceUrl, bookingUrl: cinema.bookingUrl, date: '2026-10-26', movies }));
   const text = formatCinemaSchedules(results);
   assert.ok(text.length < 3600, text.length);
-  for (const cinema of cinemas) { assert.ok(text.includes(cinema.name)); assert.ok(text.includes(cinema.sourceUrl)); assert.ok(text.includes(cinema.bookingUrl)); }
+  for (const cinema of selected) { assert.ok(text.includes(cinema.name)); assert.ok(text.includes(cinema.sourceUrl)); assert.ok(text.includes(cinema.bookingUrl)); }
   assert.match(text, /其餘請見來源/);
 });

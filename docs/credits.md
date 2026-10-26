@@ -20,9 +20,9 @@ This product uses the TMDB API but is not endorsed or certified by TMDB.
 
 只整理必要的片名、日期與公告場次，不複製完整電影介紹或海報。回覆附上更新與讀取時間，可能使用 5 分鐘快取；場次異動與售票狀況以誠品官方為準。本專案與誠品沒有合作或背書關係。
 
-## 信義與西門威秀的場次
+## 全台威秀與 MUVIE 的場次
 
-來源為 [開眼電影網信義分館時刻表](https://www.atmovies.com.tw/showtime/t02a01/a02/) 與 [西門分館時刻表](https://www.atmovies.com.tw/showtime/t02b08/a02/)，是第三方資料，不是威秀官方 API。程式目前直接讀取威秀官網收到 HTTP 403，因此以公開開眼分館頁面實作。
+全台 20 間威秀及 2 間 MUVIE 的來源與官方入口列於 [分館覆蓋表](vieshow-coverage.md)。例如 [開眼電影網信義分館時刻表](https://www.atmovies.com.tw/showtime/t02a01/a02/) 與 [西門分館時刻表](https://www.atmovies.com.tw/showtime/t02b08/a02/)，是第三方資料，不是威秀官方 API。程式目前直接讀取威秀官網收到 HTTP 403，因此以公開開眼分館頁面實作。
 
 回覆附來源與讀取時間，不虛構官方更新時間，並提供 [信義威秀官方入口](https://www.vscinemas.com.tw/theater/detail.aspx?id=1) 與 [西門威秀官方入口](https://www.vscinemas.com.tw/theater/detail.aspx?id=31)。第三方資料可能延遲、版本不完整，實際場次與售票仍以威秀為準。沒有座位、票價或代訂票。
 

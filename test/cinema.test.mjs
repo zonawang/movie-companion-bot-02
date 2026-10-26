@@ -46,7 +46,7 @@ test('區分未公告與目前時段無場次，不宣稱影城停映或售完',
 });
 test('不支援影城、錯誤日期、歷史日期皆不發出網路請求', async () => {
   const cinema = new CinemaSource({ now: current, fetcher: () => { throw new Error('不應呼叫'); } });
-  assert.equal((await cinema.schedule({ cinema: '台北京站威秀' })).status, 'unsupported_cinema');
+  assert.equal((await cinema.schedule({ cinema: '不存在的影城' })).status, 'unsupported_cinema');
   assert.equal((await cinema.schedule({ date: '2026-02-30' })).status, 'invalid');
   assert.equal((await cinema.schedule({ date: '2026-10-24' })).status, 'past_date');
 });

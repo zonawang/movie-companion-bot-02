@@ -1,6 +1,6 @@
 import { EsliteSource, taipeiDateTime } from './eslite.mjs';
 import { AtmoviesSource, validDate, validTime } from './atmovies.mjs';
-import { findCinema, listCinemas, normalizeName } from './cinema-registry.mjs';
+import { findCinema, matchCinemas, normalizeName } from './cinema-registry.mjs';
 export { parseEsliteSchedule, taipeiDateTime } from './eslite.mjs';
 export { listCinemas, formatCinemaList } from './cinema-registry.mjs';
 
@@ -16,10 +16,10 @@ export class CinemaSource {
   async schedule({ cinema = '松菸誠品', date = '', afterTime = '', onlyUpcoming = false, movieTitle = '' } = {}) {
     const branch = findCinema(cinema);
     if (!branch) {
-      const choices = listCinemas({ brand: cinema }).cinemas;
+      const choices = matchCinemas(cinema);
       return choices.length
-        ? { status: 'choose_cinema', cinema, choices, message: `請指定分館：${choices.map(item => item.name).join('、')}。這是目前已串接的分館，並非完整據點名單。` }
-        : { status: 'unsupported_cinema', cinema, message: '這間分館尚未支援場次查詢。目前支援松菸誠品、信義威秀、西門威秀。' };
+        ? { status: 'choose_cinema', cinema, choices, message: `請指定分館：${choices.map(item => item.name).join('、')}。可先說城市縮小範圍。` }
+        : { status: 'unsupported_cinema', cinema, message: '找不到這間分館，請先查詢「全台威秀分館」或指定城市，亦支援松菸誠品。' };
     }
     const base = { cinemaId: branch.id, cinema: branch.name, sourceUrl: branch.sourceUrl, bookingUrl: branch.bookingUrl };
     const local = taipeiDateTime(this.now());

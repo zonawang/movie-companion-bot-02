@@ -100,8 +100,8 @@ test('ADK 列出威秀已串接分館，品牌查詢不讀取場次或虛構其�
     const bot = new MovieCompanion({ store, model, movies: new MovieSource(), trace: () => {}, cinema: { schedule: () => { throw new Error('不可查'); } } });
     const result = await bot.respond('alice', '台北有哪些威秀可以查？');
     assert.match(result.text, /台北信義威秀影城/); assert.match(result.text, /台北西門威秀影城/);
-    assert.doesNotMatch(result.text, /京站/);
-    assert.equal(model.responses[0].response.cinemas.length, 2);
+    assert.match(result.text, /京站/);
+    assert.equal(model.responses[0].response.cinemas.length, 5);
   } finally { store.close(); }
 });
 

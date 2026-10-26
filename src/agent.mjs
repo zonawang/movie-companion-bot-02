@@ -35,8 +35,9 @@ export function createMovieAgent({ actor, turn, store, movies, cinema, model, tr
       '工具失敗或無資料要如實說明，不可用自己的知識或示範資料補上。',
       '簡介預設不劇透。評論只分享工具提供的作者和連結，不編造專業影評或整體評價。',
       'TMDB 上映候選不保證特定影城或日期有場次；回覆時說明這項限制。查無繁中評論時直接說明，不自行生成或猜測。',
-      '特定分館的片單與場次使用 cinema_schedule，目前支援松菸誠品、信義威秀、西門威秀。不可用 now_playing 冒充影城片單。',
-      '列出可查分館使用 list_cinemas；只有品牌（例如威秀）而沒有分館時先列選項詢問，不自行選信義或西門；清單僅代表已串接分館，不是完整據點。',
+      '特定分館的片單與場次使用 cinema_schedule，支援依 2026-10-26 官方目錄登錄的全台 20 間威秀、2 間 MUVIE，以及松菸誠品。不可用 now_playing 冒充影城片單。',
+      '列出全台或某城市分館使用 list_cinemas；brand=威秀包含 MUVIE，brand=MUVIE 只列 MUVIE；city 可填台北、新北、桃園、新竹、苗栗、台中、台南、高雄、花蓮或雙北，查全台用空字串。',
+      '只有品牌、城市或名稱有多個候選時，先列選項請使用者指定分館，不猜測。新竹威秀、大遠百威秀等名稱可能對應多間。遠百需分城市，台中老虎城現在官方名稱為 MUVIE CINEMAS 台中TIGER CITY。',
       '同時查詢或比較 2～3 間分館使用 cinema_compare，片名放 movieTitle（未指定留空）；保留來源原片名與不同版本，不宣稱同名電影一定是同一作品。',
       'cinema_schedule 的 date：今天、今晚或未指定日期時填空字串，由程式取得台灣今天；其他日期使用 YYYY-MM-DD。afterTime 無指定則空字串，晚上通常從 18:00 起；只想看現在之後的場次時 onlyUpcoming=true。',
       '場次會由程式附上可核對的清單；不要重新編寫或猜測場次時間。查無日期公告不代表沒有電影，沒有符合時間的場次也不等於售完。',
@@ -57,10 +58,10 @@ export function createMovieAgent({ actor, turn, store, movies, cinema, model, tr
       // Gemini 的參數 schema 不接受 exclusiveMinimum，使用可支援的 minimum。
       tool('movie_reviews', '查詢指定 TMDB ID 的使用者評論原文連結，可能沒有繁中評論。', z.object({ movieId: z.number().int().min(1) }), ({ movieId }) => movies.reviews(movieId)),
       tool('list_cinemas', '列出 Bot 已支援查場次的分館；可用品牌與城市篩選，不是全台完整據點名單。', z.object({
-        brand: z.string().max(40).describe('例如威秀或誠品；未指定用空字串'),
-        city: z.string().max(40).describe('例如台北；未指定用空字串'),
+        brand: z.string().max(40).describe('例如威秀、MUVIE 或誠品；未指定用空字串'),
+        city: z.string().max(40).describe('例如台北、新北、台中、台南、花蓮或雙北；全台用空字串'),
       }), input => { const result = listCinemas(input); turn.cinemaListing = result; return result; }),
-      tool('cinema_schedule', '查單一分館的片單／場次：松菸誠品、信義威秀、西門威秀。威秀資料來自開眼，附來源與官方入口；不提供座位或票價。', z.object({
+      tool('cinema_schedule', '查全台已登錄威秀／MUVIE 的單一分館與松菸誠品場次。名稱不明先列候選，不猜測；威秀資料來自開眼，附來源與官方入口。', z.object({
         cinema: z.string().max(100).describe('指定分館，例如信義威秀、西門威秀或松菸誠品'),
         date: z.string().max(10).describe('YYYY-MM-DD；今天、今晚或未指定日期用空字串'),
         afterTime: z.string().max(5).describe('HH:mm，篩選這個時間起的場次；未指定用空字串'),

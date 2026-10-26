@@ -16,7 +16,9 @@
     "smoke:cinema": "node examples/cinema-smoke.mjs",
     "test": "node --test test/*.test.mjs",
     "smoke:cinemas": "node examples/multi-cinema-smoke.mjs",
-    "smoke:cinemas:adk": "node examples/multi-cinema-adk-smoke.mjs"
+    "smoke:cinemas:adk": "node examples/multi-cinema-adk-smoke.mjs",
+    "smoke:cinemas:all": "node examples/all-vieshow-smoke.mjs",
+    "smoke:cinemas:national:adk": "node examples/national-vieshow-adk-smoke.mjs"
   },
   "dependencies": {
     "@google/adk": "2.3.0",
