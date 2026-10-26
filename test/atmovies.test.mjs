@@ -15,12 +15,12 @@ test('分館別名與台／臺一致；只給品牌列出已支援選項，不�
   assert.equal(findCinema(' 臺北 信義 威秀影城 ').id, xinyi.id);
   assert.equal(findCinema('威秀西門').id, 'vieshow-ximen');
   assert.equal(findCinema('威秀'), undefined);
-  assert.equal(cinemas.length, 23);
+  assert.equal(cinemas.length, 108);
   const list = listCinemas({ brand: '威秀影城', city: '臺北市' });
   assert.equal(list.cinemas.length, 5);
   assert.ok(list.cinemas.some(cinema => cinema.id === 'vieshow-qsquare'));
   assert.ok(list.cinemas.every(cinema => cinema.city === '台北'));
-  assert.match(formatCinemaList(list), /2026-10-26 官方目錄/);
+  assert.match(formatCinemaList(list), /2026-10-26 開眼目錄/);
   const cinema = cinemaWith(() => { throw new Error('不應讀網頁'); });
   assert.equal((await cinema.schedule({ cinema: '威秀' })).status, 'choose_cinema');
   assert.equal((await cinema.schedule({ cinema: '不存在的影城' })).status, 'unsupported_cinema');

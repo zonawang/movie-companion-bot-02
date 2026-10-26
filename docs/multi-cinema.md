@@ -1,6 +1,6 @@
 # 多影城與分館場次
 
-本版登錄松菸誠品、全台 20 間威秀與 2 間 MUVIE。22 間均於 2026-10-26 核對官方據點並實際解析第三方場次，詳見 [全台分館覆蓋](vieshow-coverage.md)。品牌與分館是不同欄位；威秀不是一間分館。`list_cinemas` 只列出已支援據點，全台威秀範圍以核對日為準，不宣稱涵蓋之後的新開據點或其他品牌全台影城。
+本版已擴充為 108 個影城／放映場館，102 個可解析場次、6 個為圖片入口，詳見 [全台覆蓋表](taiwan-coverage.md)。威秀／MUVIE 的官方目錄核對紀錄另見 [威秀覆蓋](vieshow-coverage.md)。品牌與分館是不同欄位；威秀不是一間分館。`list_cinemas` 只列出已支援據點，全台威秀範圍以核對日為準，不宣稱涵蓋之後的新開據點或其他品牌全台影城。
 
 ## 來源選擇與驗證
 
@@ -12,7 +12,7 @@
 
 ## 工具與資料流程
 
-- `list_cinemas({brand, city})`：已支援分館，附品牌與城市。
+- `list_cinemas({brand, city, page?})`：已登錄據點，附品牌、縣市與圖片入口標示。每頁 25 間，回傳 total、pageCount 與 hasMore，避免 LINE 直接截斷長清單。
 - `cinema_schedule({cinema, date, afterTime, onlyUpcoming, movieTitle?})`：單一分館，支援別名及台／臺。
 - `cinema_compare({cinemas, date, afterTime, onlyUpcoming, movieTitle})`：一次 2～3 間，各自取得結果，不因其中一館失敗而丟掉其他館。
 
@@ -40,3 +40,9 @@ ADK 理解使用者句子與挑選工具。分館 ID、來源 URL、日期與時
 4. 真實讀取及模型選工具驗證通過，再標示支援。
 
 新品牌不一定沿用相同 HTML 結構；需要新的 provider。新增名單不等於已完成場次串接。
+
+## 跨品牌與縣市
+
+資料以獨立來源代碼去重；誠品保留官方 provider，不與開眼的同一場館重複登錄。新竹市與新竹縣依來源地址區分，短稱新竹可涵蓋兩者。其他品牌與地方戲院資料在 `taiwan-cinemas.json`。清單能力標示是核對日快照，查詢仍依當下讀取結果回覆。
+
+`parseAtmoviesSchedule` 在確認分館身分後，才辨識圖片時刻表；只接受來源網域的圖片路徑。圖片頁回傳 `links_only`，不從檔名月份或更新時間猜放映日期。來源頁提供的影城網站與已核對官方入口分別標示。

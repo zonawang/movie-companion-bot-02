@@ -18,8 +18,8 @@ export class CinemaSource {
     if (!branch) {
       const choices = matchCinemas(cinema);
       return choices.length
-        ? { status: 'choose_cinema', cinema, choices, message: `請指定分館：${choices.map(item => item.name).join('、')}。可先說城市縮小範圍。` }
-        : { status: 'unsupported_cinema', cinema, message: '找不到這間分館，請先查詢「全台威秀分館」或指定城市，亦支援松菸誠品。' };
+        ? { status: 'choose_cinema', cinema, choices, message: `找到 ${choices.length} 間候選，請指定分館：${choices.slice(0, 20).map(item => item.name).join('、')}${choices.length > 20 ? '等（僅列前 20 間，可用影城清單分頁查看）' : ''}。可先說品牌或縣市縮小範圍。` }
+        : { status: 'unsupported_cinema', cinema, message: '找不到這間分館，請先查詢影城清單，或提供品牌與縣市；本 Bot 未保證涵蓋所有營業場所。' };
     }
     const base = { cinemaId: branch.id, cinema: branch.name, sourceUrl: branch.sourceUrl, bookingUrl: branch.bookingUrl };
     const local = taipeiDateTime(this.now());
@@ -57,8 +57,9 @@ export function formatCinemaSchedule(result, { maxChars = 3200 } = {}) {
     footer.push(`讀取時間：${time.date} ${time.time}（台灣時間）`);
   }
   if (result.sourceUrl) footer.push(`${result.provider === 'atmovies' ? '來源時刻表' : '官方時刻表'}：${result.sourceUrl}`);
-  if (result.bookingUrl) footer.push(`官方訂票／核對：${result.bookingUrl}`);
-  if (result.sourceUrl) footer.push(result.provider === 'atmovies' ? '第三方資料可能延遲或缺少版本；場次與售票以威秀官網為準。' : '場次與售票異動以官網為準。');
+  if (result.bookingUrl) footer.push(`${result.websiteFromDirectory ? '影城網站（來源頁提供）' : '官方訂票／核對'}：${result.bookingUrl}`);
+  if (result.imageUrl) footer.push(`來源圖片時刻表：${result.imageUrl}`);
+  if (result.sourceUrl) footer.push(result.provider === 'atmovies' ? '第三方資料可能延遲或缺少版本；場次與售票以影城為準。' : '場次與售票異動以官網為準。');
   if (result.status === 'ok') {
     lines.push(result.afterTime ? `以下為 ${result.afterTime} 起的場次：` : '以下為來源目前列出的場次：');
     if (result.movieTitle) lines.push(`片名篩選：${result.movieTitle}（請核對作品與版本）`);

@@ -35,13 +35,13 @@ export function createMovieAgent({ actor, turn, store, movies, cinema, model, tr
       '工具失敗或無資料要如實說明，不可用自己的知識或示範資料補上。',
       '簡介預設不劇透。評論只分享工具提供的作者和連結，不編造專業影評或整體評價。',
       'TMDB 上映候選不保證特定影城或日期有場次；回覆時說明這項限制。查無繁中評論時直接說明，不自行生成或猜測。',
-      '特定分館的片單與場次使用 cinema_schedule，支援依 2026-10-26 官方目錄登錄的全台 20 間威秀、2 間 MUVIE，以及松菸誠品。不可用 now_playing 冒充影城片單。',
-      '列出全台或某城市分館使用 list_cinemas；brand=威秀包含 MUVIE，brand=MUVIE 只列 MUVIE；city 可填台北、新北、桃園、新竹、苗栗、台中、台南、高雄、花蓮或雙北，查全台用空字串。',
+      '特定分館的片單與場次使用 cinema_schedule，目前登錄開眼 2026-10-26 目錄的 108 個據點，含威秀、秀泰、國賓、新光、in89、美麗華、美麗新、喜樂時代、百老匯、地方戲院與放映場館。102 個可解析場次，6 個僅圖片入口；不保證涵蓋全台所有營業場所。不可用 now_playing 冒充影城片單。',
+      '列出影城使用 list_cinemas，可依品牌與縣市篩選；全台查詢 brand 與 city 留空。品牌威秀包含 MUVIE，MUVIE 可獨立查。city 可填全台縣市或地區，必須區分新竹市與新竹縣。清單每頁 25 間，page 從 1 開始；使用者說下一頁時沿用前一輪品牌與城市，page 加 1，不自行補列名單。',
       '只有品牌、城市或名稱有多個候選時，先列選項請使用者指定分館，不猜測。新竹威秀、大遠百威秀等名稱可能對應多間。遠百需分城市，台中老虎城現在官方名稱為 MUVIE CINEMAS 台中TIGER CITY。',
       '同時查詢或比較 2～3 間分館使用 cinema_compare，片名放 movieTitle（未指定留空）；保留來源原片名與不同版本，不宣稱同名電影一定是同一作品。',
       'cinema_schedule 的 date：今天、今晚或未指定日期時填空字串，由程式取得台灣今天；其他日期使用 YYYY-MM-DD。afterTime 無指定則空字串，晚上通常從 18:00 起；只想看現在之後的場次時 onlyUpcoming=true。',
       '場次會由程式附上可核對的清單；不要重新編寫或猜測場次時間。查無日期公告不代表沒有電影，沒有符合時間的場次也不等於售完。',
-      '威秀場次目前來自開眼電影網第三方時刻表，不是威秀官方 API；可能延遲或缺少版本。誠品仍來自官方。不要把讀取時間說成官方更新時間。',
+      '誠品場次使用官方來源；其他已登錄影城目前使用開眼電影網第三方時刻表，不是各影城官方 API，可能延遲或缺少版本。遇到 links_only 要清楚說只有圖片入口，不編造場次。不要把讀取時間說成官方更新時間。',
       '只查指定片名時填 movieTitle，查無相符片名應說明來源可能不完整。凌晨場依來源日期列出，不自行推算隔天或推測座位、票價。',
       '若使用者還問電影內容，先查影城片單，再用 search_movies 搜尋同一片名補簡介；遇到同名作品先確認，不要混用版本。簡介以 2～3 句摘要，不要整段照抄。',
       '不支援的影城使用 showtime_links 提供入口並說明限制，不生成時間、票價或剩餘座位。',
@@ -57,12 +57,13 @@ export function createMovieAgent({ actor, turn, store, movies, cinema, model, tr
       tool('search_movies', '用片名查電影、簡介與 TMDB ID。', z.object({ query: z.string().min(1).max(150) }), ({ query }) => movies.movies(query)),
       // Gemini 的參數 schema 不接受 exclusiveMinimum，使用可支援的 minimum。
       tool('movie_reviews', '查詢指定 TMDB ID 的使用者評論原文連結，可能沒有繁中評論。', z.object({ movieId: z.number().int().min(1) }), ({ movieId }) => movies.reviews(movieId)),
-      tool('list_cinemas', '列出 Bot 已支援查場次的分館；可用品牌與城市篩選，不是全台完整據點名單。', z.object({
-        brand: z.string().max(40).describe('例如威秀、MUVIE 或誠品；未指定用空字串'),
-        city: z.string().max(40).describe('例如台北、新北、台中、台南、花蓮或雙北；全台用空字串'),
+      tool('list_cinemas', '列出已登錄的全台影城／場館，可依品牌及縣市篩選，25 間一頁；標示僅圖片入口的場館，不是全台完整營業名冊。', z.object({
+        brand: z.string().max(40).describe('例如威秀、秀泰、國賓、新光、in89、美麗新、喜樂時代；未指定用空字串'),
+        city: z.string().max(40).describe('例如台北市、新北市、新竹縣、屏東縣、澎湖縣、金門縣或雙北；全台用空字串'),
+        page: z.number().int().min(1).max(100).optional().describe('頁碼，預設 1；下一頁需沿用品牌與縣市'),
       }), input => { const result = listCinemas(input); turn.cinemaListing = result; return result; }),
-      tool('cinema_schedule', '查全台已登錄威秀／MUVIE 的單一分館與松菸誠品場次。名稱不明先列候選，不猜測；威秀資料來自開眼，附來源與官方入口。', z.object({
-        cinema: z.string().max(100).describe('指定分館，例如信義威秀、西門威秀或松菸誠品'),
+      tool('cinema_schedule', '查任一已登錄影城／場館的片單與場次；包含威秀、秀泰、國賓等與地方戲院。先確認分館；僅圖片來源回入口，不提供推測時間。', z.object({
+        cinema: z.string().max(100).describe('指定分館，例如文心秀泰、長春國賓、澎湖in89或松菸誠品'),
         date: z.string().max(10).describe('YYYY-MM-DD；今天、今晚或未指定日期用空字串'),
         afterTime: z.string().max(5).describe('HH:mm，篩選這個時間起的場次；未指定用空字串'),
         onlyUpcoming: z.boolean().describe('今天只看現在起尚未開演的場次時為 true；查公告片單為 false'),

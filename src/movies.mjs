@@ -5,7 +5,7 @@ const fixtures = [
 ];
 export const showtimeLinks = () => ({
   status: 'links_only',
-  notice: '松菸誠品及全台已登錄的威秀／MUVIE 分館可用 cinema_schedule 查詢，分館可先用 list_cinemas 列出；威秀場次來自開眼電影網，沒有即時座位或票價。',
+  notice: '可先用 list_cinemas 找全台已登錄的影城與場館，再用 cinema_schedule 查場次；誠品來自官方，其他影城使用開眼第三方資料。部分場館僅圖片入口，沒有即時座位或票價。',
   sources: [
     { name: '松菸誠品電影院官方時刻表', url: 'https://meet.eslite.com/tw/tc/gallery/movieschedule/201803020001' },
     { name: '威秀影城', url: 'https://www.vscinemas.com.tw/' },

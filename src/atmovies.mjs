@@ -11,6 +11,16 @@ export function parseAtmoviesSchedule(html, cinema) {
   const heading = $('h2').map((_, element) => $(element).text().trim()).get();
   if (!heading.some(name => cinema.sourceNames.some(expected => normalizeName(name) === normalizeName(expected)))) throw new Error('Wrong cinema');
   const block = $('#theaterShowtimeBlock');
+  if (!block.length) {
+    const poster = $('.theaterboard img[src]').first().attr('src');
+    if (poster) {
+      const url = new URL(poster, cinema.sourceUrl);
+      if (url.origin === 'https://www.atmovies.com.tw' && url.pathname.startsWith('/movie/homeimages/A1showtime/')) {
+        return { kind: 'image_only', date: null, publishedDates: [], movies: [], imageUrl: url.href };
+      }
+    }
+    throw new Error('Unknown schedule structure');
+  }
   const label = block.prevAll('h3').first().text().trim();
   const match = /^(\d{4})\/(\d{2})\/(\d{2})\s*[（(][日一二三四五六][）)]$/.exec(label);
   const date = match && `${match[1]}-${match[2]}-${match[3]}`;
@@ -82,18 +92,21 @@ export class AtmoviesSource {
     const base = {
       cinemaId: cinema.id, cinema: cinema.name, brand: cinema.brand, provider: 'atmovies',
       source: '開眼電影網（第三方時刻表）', sourceUrl: cinema.sourceUrl, bookingUrl: cinema.bookingUrl,
+      websiteFromDirectory: cinema.websiteFromDirectory || false,
       date, afterTime, onlyUpcoming,
-      notice: '威秀場次由開眼電影網整理，非威秀官方 API；來源可能延遲或未涵蓋所有版本。實際場次與售票以威秀官網為準。',
+      notice: '場次由開眼電影網整理，非影城官方 API；來源可能延遲或未涵蓋所有版本。實際場次與售票以影城為準。',
     };
     try {
       const page = await this.page(cinema, date, local.date);
       const meta = { ...base, sourceUrl: page.sourceUrl, fetchedAt: new Date(page.fetched).toISOString(), publishedDates: page.publishedDates };
+      if (page.kind === 'image_only') return { ...meta, status: 'links_only', imageUrl: page.imageUrl,
+        message: '這個來源只有圖片時刻表，尚未自動擷取日期與場次。請開啟來源原圖或影城網站確認，不代表沒有放映。' };
       if (page.date !== date) return { ...meta, status: 'not_published' };
       const movies = page.movies.map(movie => ({ ...movie, times: movie.times.filter(time => time >= afterTime) })).filter(movie => movie.times.length)
         .sort((a, b) => a.times[0].localeCompare(b.times[0]));
       return { ...meta, status: movies.length ? 'ok' : 'no_upcoming', movies };
     } catch {
-      return { ...base, status: 'unavailable', message: '時刻表暫時無法讀取或格式已變更，請到來源或威秀官網確認。' };
+      return { ...base, status: 'unavailable', message: '時刻表暫時無法讀取或格式已變更，請到來源或影城網站確認。' };
     }
   }
 }

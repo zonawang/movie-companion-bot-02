@@ -16,7 +16,7 @@ export function createWebhookServer({ secret, store, bot, reply, log = console.e
           if (Date.now() - job.created > 50_000) { store.finishJob(job.id, 'expired'); continue; }
           const event = job.event, actor = event.source.userId;
           let result;
-          if (event.type === 'follow') result = { text: '我是你的電影夥伴！可以問「信義威秀今晚有哪些片？」、「比較信義和西門威秀今晚場次」，已支援全台 20 間威秀、2 間 MUVIE 與松菸誠品，也可以問「台南有哪些威秀？」。還能查電影簡介、評論與記錄觀影票根，票根確認後才儲存。輸入「關於」可查看資料來源。' };
+          if (event.type === 'follow') result = { text: '我是你的電影夥伴！可以問「信義威秀今晚有哪些片？」、「比較信義和西門威秀今晚場次」，也可查秀泰、國賓、新光、in89 等，問「台南有哪些影城？」或「影城清單下一頁」。部分場館只有圖片入口。還能查電影簡介、評論與記錄觀影票根，票根確認後才儲存。輸入「關於」可查看資料來源。' };
           else if (event.type === 'postback') result = decisionReply(store, actor, event.postback.data);
           else if (['關於', '資料來源', 'about'].includes(event.message.text.trim().toLowerCase())) result = aboutReply();
           else result = await bot.respond(actor, event.message.text, job.id);

@@ -18,7 +18,9 @@
     "smoke:cinemas": "node examples/multi-cinema-smoke.mjs",
     "smoke:cinemas:adk": "node examples/multi-cinema-adk-smoke.mjs",
     "smoke:cinemas:all": "node examples/all-vieshow-smoke.mjs",
-    "smoke:cinemas:national:adk": "node examples/national-vieshow-adk-smoke.mjs"
+    "smoke:cinemas:national:adk": "node examples/national-vieshow-adk-smoke.mjs",
+    "smoke:cinemas:taiwan": "node examples/all-taiwan-cinemas-smoke.mjs",
+    "smoke:cinemas:taiwan:adk": "node examples/taiwan-cinemas-adk-smoke.mjs"
   },
   "dependencies": {
     "@google/adk": "2.3.0",
